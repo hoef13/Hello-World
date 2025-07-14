@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Modern Corporate Design Styles (2020-2025) – Real Screenshots</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#f5f5f7;color:#1d1d1f;padding:2rem;
+  }
+  h1{margin-bottom:1.5rem;font-weight:600}
+  .taxonomy{margin-bottom:2rem;font-size:1rem;color:#666}
+  .taxonomy span{cursor:pointer;padding:.3rem .6rem;border-radius:4px;margin-right:.5rem}
+  .taxonomy span.active{background:#007aff;color:#fff}
+
+  /* ---------- CARD GRID ---------- */
+  .grid{
+    display:grid;gap:1.5rem;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  }
+  .card{
+    position:relative;border-radius:12px;overflow:hidden;
+    background:#fff;cursor:pointer;transition:transform .25s;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+  }
+  .card:hover{transform:translateY(-4px)}
+  .card img{width:100%;height:180px;display:block;object-fit:cover}
+
+  /* ---------- OVERLAY ---------- */
+  .overlay{
+    position:absolute;top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,.78);color:#fff;padding:1.5rem;
+    opacity:0;transition:opacity .25s;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .card:hover .overlay{opacity:1}
+  .overlay h3{margin-bottom:.5rem;font-size:1.2rem}
+  .overlay p{font-size:.85rem;margin-bottom:.4rem}
+
+  /* ---------- COMPARE BAR ---------- */
+  .compare-bar{
+    position:fixed;bottom:0;left:0;right:0;background:#fff;
+    border-top:1px solid #e5e5e7;padding:1rem 2rem;display:none;
+    align-items:center;gap:1rem;box-shadow:0 -2px 8px rgba(0,0,0,.06);
+  }
+  .compare-bar.show{display:flex}
+  .mini-card{
+    width:100px;height:60px;border-radius:8px;position:relative;overflow:hidden;
+  }
+  .mini-card img{width:100%;height:100%;object-fit:cover}
+  .compare-bar button{
+    background:#007aff;color:#fff;border:none;border-radius:6px;
+    padding:.5rem 1rem;cursor:pointer;
+  }
+  .compare-panel{
+    position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;
+    z-index:999;display:none;grid-template-columns:repeat(3,1fr);
+    gap:1.5rem;padding:2rem;overflow:auto;
+  }
+  .compare-panel.show{display:grid}
+  .close-btn{
+    position:absolute;top:1.5rem;right:2rem;
+    background:#e5e5e7;border:none;border-radius:50%;
+    width:36px;height:36px;font-size:1.2rem;cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>Modern Corporate Design Styles (2020-2025) – Real Screenshots</h1>
+
+<!-- TAXONOMY NAV -->
+<div class="taxonomy">
+  <span class="active" data-filter="all">All</span>
+  <span data-filter="minimalist">Minimalist Continuum</span>
+  <span data-filter="depth">Depth & Transparency</span>
+  <span data-filter="grid">Grid Systems</span>
+  <span data-filter="contrast">High-Contrast Impact</span>
+  <span data-filter="immersive">Immersive Modes</span>
+  <span data-filter="expressive">Expressive Elements</span>
+</div>
+
+<!-- MAIN GRID -->
+<div class="grid" id="grid"></div>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar" id="compareBar">
+  <span id="counter">Select up to 3 styles</span>
+  <div id="miniCards"></div>
+  <button onclick="openCompare()">Compare</button>
+</div>
+
+<!-- COMPARE PANEL -->
+<div class="compare-panel" id="comparePanel"></div>
+
+<script>
+/* ---------- DATA with real screenshot URLs ---------- */
+const styles = [
+  {name:"Glassmorphism",taxonomy:"depth",img:"https://i.imgur.com/5GvX7wW.png",desc:"Semi-transparent panels with background blur & soft shadows.",best:"Over dark dashboards, login modals, data cards."},
+  {name:"Modern Minimalism",taxonomy:"minimalist",img:"https://i.imgur.com/3Q1kY7w.png",desc:"Ultra-clean layouts, generous white-space, 1–2 accent colors.",best:"High-data SaaS landing pages."},
+  {name:"Dark-Mode UX",taxonomy:"immersive",img:"https://i.imgur.com/8Yj6KzT.png",desc:"True-black or charcoal surfaces with high-contrast type.",best:"Control panels, dev-tool docs."},
+  {name:"Bento Grid",taxonomy:"grid",img:"https://i.imgur.com/4B4xZJx.png",desc:"Dashboard-like micro-windows inspired by Japanese bento boxes.",best:"Product-tour pages, feature grids."},
+  {name:"Monochromatic + Accent",taxonomy:"minimalist",img:"https://i.imgur.com/9N5E8zK.png",desc:"Single neutral base + one saturated highlight color.",best:"Insurance, finance, legal-tech sites."},
+  {name:"Brutalist Corporate",taxonomy:"contrast",img:"https://i.imgur.com/8T2y7MR.png",desc:"Heavy grotesk type, raw monochrome blocks, visible grid lines.",best:"Cyber-security, dev-tool brands."},
+  {name:"Big Color Blocks",taxonomy:"contrast",img:"https://i.imgur.com/3g8qP8z.png",desc:"Full-width, high-chroma rectangles that segment content.",best:"SaaS tier-comparison pages."},
+  {name:"Expressive Typography-First",taxonomy:"expressive",img:"https://i.imgur.com/7n1s3Yg.png",desc:"Oversized animated headlines that become the hero image.",best:"Thought-leadership blogs."},
+  {name:"Organic Matter",taxonomy:"depth",img:"https://i.imgur.com/6K4w0qL.png",desc:"Soft 3D blobs, claymorphism, earthy gradients.",best:"HR / employee-experience suites."},
+  {name:"Futuristic Sci-Fi HUD",taxonomy:"immersive",img:"https://i.imgur.com/6fy8n9d.png",desc:"Thin neon lines, HUD overlays, glitch micro-animations.",best:"AI analytics, data-platform sites."}
+];
+
+/* ---------- RENDER CARDS (unchanged logic) ---------- */
+const grid = document.getElementById('grid');
+styles.forEach((s,i)=>{
+  const card = document.createElement('div');
+  card.className='card'; card.dataset.taxonomy=s.taxonomy; card.dataset.id=i;
+  card.innerHTML = `
+    <img src="${s.img}" alt="${s.name}">
+    <div class="overlay">
+      <h3>${s.name}</h3>
+      <p>${s.desc}</p>
+      <p><strong>Best use-case:</strong> ${s.best}</p>
+    </div>
+  `;
+  card.addEventListener('click',toggleSelect);
+  grid.appendChild(card);
+});
+
+/* ---------- FILTER ---------- */
+document.querySelectorAll('.taxonomy span').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.taxonomy span').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const filter = tab.dataset.filter;
+    document.querySelectorAll('.card').forEach(c=>{
+      c.style.display = (filter==='all' || c.dataset.taxonomy===filter) ? '' : 'none';
+    });
+  });
+});
+
+/* ---------- COMPARE LOGIC ---------- */
+let selected = new Set();
+const max = 3;
+function toggleSelect(e){
+  const id = +e.currentTarget.dataset.id;
+  if(selected.has(id)) selected.delete(id);
+  else if(selected.size<max) selected.add(id);
+  updateBar();
+}
+function updateBar(){
+  const bar=document.getElementById('compareBar');
+  const mini=document.getElementById('miniCards');
+  const counter=document.getElementById('counter');
+  mini.innerHTML='';
+  if(selected.size){
+    bar.classList.add('show');
+    selected.forEach(id=>{
+      const img=document.createElement('img');
+      img.src=styles[id].img; img.alt=styles[id].name;
+      const div=document.createElement('div'); div.className='mini-card';
+      div.appendChild(img); mini.appendChild(div);
+    });
+    counter.textContent=`${selected.size}/3 selected`;
+  }else bar.classList.remove('show');
+}
+function openCompare(){
+  const panel=document.getElementById('comparePanel');
+  panel.innerHTML='<button class="close-btn" onclick="closeCompare()">&times;</button>';
+  selected.forEach(id=>{
+    const {name,img,desc,best}=styles[id];
+    const div=document.createElement('div'); div.className='compare-card';
+    div.innerHTML=`
+      <img src="${img}" alt="${name}">
+      <h3>${name}</h3>
+      <p>${desc}</p>
+      <p><strong>Best use-case:</strong> ${best}</p>
+    `;
+    panel.appendChild(div);
+  });
+  panel.classList.add('show');
+}
+function closeCompare(){
+  document.getElementById('comparePanel').classList.remove('show');
+}
+</script>
+</body>
+</html>
